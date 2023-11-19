@@ -61,7 +61,6 @@ It creates a data file which contains all requested data:
 ```
 ChannelName;ChannelUnit;ValueTimestamp;ChannelValue
 Pac;kW;1700388485;2.3
-E-Tag;kWh;1700388485;1.4
 E-Total;kWh;1700388485;2746876.4
 ```
 

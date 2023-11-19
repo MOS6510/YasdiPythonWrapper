@@ -9,6 +9,10 @@ from yasdiwrapper.yasdi import *
 from yasdiwrapper.yasdimaster import *
 from yasdiwrapper.sd1channels import *
 
+# Search for YASDI libraries also in the current directory first
+os.environ["DYLD_LIBRARY_PATH"] = os.getcwd() # for macOS
+os.environ["LD_LIBRARY_PATH"] = os.getcwd() # for Linux/Unix
+
 class YasdiTests(unittest.TestCase):
 
     yasdiMaster = YasdiMaster()
@@ -55,9 +59,10 @@ class YasdiTests(unittest.TestCase):
         # Then
         self.assertGreater(len(self.yasdi.yasdiGetDriverName(firstDriverHandle)), 0)
 
-# master methode, one method. Most depends on a successfully device detection which takes a long time
+# ---------------------------------------------- YASDI Master ---------------------------------------------------
+# Test of all YASDI master methods here. Most depends on a successfully device detection which takes a long time.
 
-    def testYasdiMasterDeviceDetection(self):
+    def testYasdiMaster(self):
         # Given:
         driverHandleList = self.yasdi.yasdiGetDrivers()
         self.assertGreater(len(driverHandleList),0)
@@ -115,10 +120,13 @@ class YasdiTests(unittest.TestCase):
         channelValueTimeStamp = self.yasdiMaster.GetChannelValueTimeStamp(channelHandlePac, firstDeviceHandle)     
         self.assertGreater(channelValueTimeStamp, 0)
 
-if __name__ == '__main__':
+        # On a SBC only, not inverter.
+        channelH = self.yasdiMaster.FindChannelName(firstDeviceHandle, "SK_Toleranz")
+        if channelH != INVALID_HANDLE:
+            rangeParameterValue = self.yasdiMaster.GetChannelValRange(channelH)
+            self.assertNotEqual(rangeParameterValue[0], None)
+            self.assertNotEqual(rangeParameterValue[1], None)
+            print(f"Range of channel '{self.yasdiMaster.GetChannelName(channelH)}' = {rangeParameterValue}")
 
-     # Search for YASDI libraries also in the current directory first
-    os.environ["DYLD_LIBRARY_PATH"] = os.getcwd() # for macOS
-    os.environ["LD_LIBRARY_PATH"] = os.getcwd() # for Linux/Unix
-    
+if __name__ == '__main__':
     unittest.main()

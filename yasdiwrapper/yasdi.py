@@ -52,7 +52,7 @@ class Yasdi:
         self.yasdi = cdll.LoadLibrary(find_library("yasdi"))
         #self.yasdiInitialize()
     
-    def yasdiInitialize(self,initfile="." + os.pathsep + "yasdi.ini"):
+    def yasdiInitialize(self, initfile="." + os.pathsep + "yasdi.ini"):
         driverCount = c_int(0)
         self.yasdi.yasdiInitialize(initfile, byref(driverCount))
 
@@ -65,14 +65,14 @@ class Yasdi:
     def yasdiGetDriverName(self, driverID):
         """Returns the name of the driver name"""
         driverNameBufferString = (c_char * 32)()
-        if 0 < self.yasdi.yasdiGetDriverName(driverID, driverNameBufferString, len(driverNameBufferString)):
+        if self.yasdi.yasdiGetDriverName(driverID, driverNameBufferString, len(driverNameBufferString)) > 0:
             return string_at(driverNameBufferString).decode("ascii")
         else:
             return ""
 
     def yasdiSetDriverOnline(self, driverHandle):
         """Activates a driver. Set it online."""
-        if 0 < self.yasdi.yasdiSetDriverOnline(driverHandle):
+        if self.yasdi.yasdiSetDriverOnline(driverHandle) > 0:
             return True
         else:
             return False

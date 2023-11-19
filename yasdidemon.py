@@ -14,21 +14,31 @@ __maintainer__ = "Heiko Prüssing"
 
 import os
 import time
-from ctypes import *
-from yasdiwrapper.yasdi import *
-from yasdiwrapper.yasdimaster import *
-from yasdiwrapper.sd1channels import *
+from yasdiwrapper.yasdi import Yasdi, INVALID_HANDLE
+from yasdiwrapper.yasdimaster import YasdiMaster, CMD_DEVICE_DETECTION
+from yasdiwrapper.sd1channels import CHANNEl_NAME_PAC, CHANNEl_NAME_ETOTAL
+
+# Globals
+
+# Search for YASDI libraries also in the current directory first
+os.environ["DYLD_LIBRARY_PATH"] = os.getcwd() # for macOS
+os.environ["LD_LIBRARY_PATH"] = os.getcwd() # for Linux/Unix
+
+yasdiMasterLibrary = YasdiMaster()
+yasdiLibrary = Yasdi()
 
 
 # Implementation
 
-def pollLiveData(deviceList: [c_int], channelList: [str], outputFile: str="./data.csv"):
-    """Polls for live data on given devices and channel names and put it into a csv file."""
+class YasdiDemon:
 
-    # The age of the channel value should not older than 1 second
-    AGE_OF_VALUE_SECONDS = 1
+    def pollLiveData(self, devicesList, channelsToRequest, outputFile: str="./data.csv"):
+        """Polls for live data on given devices and channel names and put it into a csv file."""
+
+        # The age of the channel value should not older than 1 second
+        AGE_OF_VALUE_SECONDS = 1
     
-    while True:
+        while True:
             outputBuffer = "ChannelName;ChannelUnit;ValueTimestamp;ChannelValue\n"
             for deviceHandle in devicesList:
                 for channelName in channelsToRequest:
@@ -43,50 +53,46 @@ def pollLiveData(deviceList: [c_int], channelList: [str], outputFile: str="./dat
                         outputBuffer = outputBuffer + f"{channelName};{channelUnit};{timestamp};{channelValue}\n"
             
             # Write data to a csv file
-            with open(outputFile, 'w') as f:
+            with open(outputFile, 'w', encoding="utf-8") as f:
                 f.write(outputBuffer)
                 f.close()
 
             time.sleep(2)
 
-if __name__ == "__main__":
+    def start(self):
+        try:
+            driverHandleList = yasdiLibrary.yasdiGetDrivers()
+            if len(driverHandleList) == 0:
+                raise Exception("Error: No configured interfaces available! Please check your YASDI configuration try again...")
 
-    # Search for YASDI libraries also in the current directory first
-    os.environ["DYLD_LIBRARY_PATH"] = os.getcwd() # for macOS
-    os.environ["LD_LIBRARY_PATH"] = os.getcwd() # for Linux/Unix
+            # Open all interfaces (drivers)
+            for driverHandle in driverHandleList:
+                print(f"Open interface driver '{yasdiLibrary.yasdiGetDriverName(driverHandle)}'. Success = {yasdiLibrary.yasdiSetDriverOnline(driverHandle)}" )
 
-    yasdiMasterLibrary = YasdiMaster()
-    yasdiLibrary = Yasdi()
+            # Search for SMA devices (inverters, etc...)
+            print("Start searching SMA devices...")
+            COUNT_OF_DEVICES_TO_BE_SEARCHED = 1
+            if not yasdiMasterLibrary.DoMasterCmdEx(cmd=CMD_DEVICE_DETECTION, param1=COUNT_OF_DEVICES_TO_BE_SEARCHED):
+                print("Device detection failed for some reason. Maybe not all devices are found as requested.")
 
-    try:
-        driverHandleList = yasdiLibrary.yasdiGetDrivers()
-        if len(driverHandleList) == 0:
-            raise Exception("Error: No configured interfaces available! Please check your YASDI configuration try again...")
+            # Get the list of found SMA devices
+            devicesList = yasdiMasterLibrary.GetDeviceHandles()
+            for deviceHandle in devicesList:
+                print(f"Found device: {yasdiMasterLibrary.GetDeviceName(deviceHandle)}")
 
-        # Open all interfaces (drivers)
-        for driverHandle in driverHandleList:
-             print(f"Open interface driver '{yasdiLibrary.yasdiGetDriverName(driverHandle)}'. Success = {yasdiLibrary.yasdiSetDriverOnline(driverHandle)}" )
-
-        # Search for SMA devices (inverters, etc...)
-        print("Start searching SMA devices...")
-        COUNT_OF_DEVICES_TO_BE_SEARCHED = 1
-        if not yasdiMasterLibrary.DoMasterCmdEx(cmd=CMD_DEVICE_DETECTION, param1=COUNT_OF_DEVICES_TO_BE_SEARCHED):
-            print(f"Device detection failed for some reason. Maybe not all devices are found as requested.")
-
-        # Get the list of found SMA devices
-        devicesList = yasdiMasterLibrary.GetDeviceHandles()
-        for deviceHandle in devicesList:
-            print(f"Found device: {yasdiMasterLibrary.GetDeviceName(deviceHandle)}")
-
-        if len(devicesList) == 0:
-            raise Exception("ERROR: No SMA inverters found! Check your hardware or yasdi configuration and try again...")
+            if len(devicesList) == 0:
+                raise Exception("ERROR: No SMA inverters found! Check your hardware or yasdi configuration and try again...")
         
-        # Endless poll for live data from devices:
-        channelsToRequest = [CHANNEl_NAME_PAC, CHANNEl_NAME_ETOTAL] 
-        pollLiveData(devicesList, channelsToRequest)
+            # Endless poll for live data from devices:
+            self.pollLiveData(devicesList, [CHANNEl_NAME_PAC, CHANNEl_NAME_ETOTAL])
 
-    #except Exception as e:
-    #    print(f"=> Exception: {e}")
+        #except Exception as e:
+        #    print(f"=> Exception: {e}")
 
-    finally:
-        yasdiMasterLibrary.yasdiMasterShutdown()
+        finally:
+            yasdiMasterLibrary.yasdiMasterShutdown()
+
+
+if __name__ == "__main__":
+    yasdiDemon = YasdiDemon()
+    yasdiDemon.start()

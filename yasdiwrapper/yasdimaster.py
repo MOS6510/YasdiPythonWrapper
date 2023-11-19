@@ -142,8 +142,7 @@ class YasdiMaster:
             return "???"
 
     def SetChannelValue(self, channel_handle, device_handle, value: float) -> bool:
-        result = self.yasdiMaster.SetChannelValue(channel_handle, device_handle, value)
-        if YE_OK:
+        if YE_OK == self.yasdiMaster.SetChannelValue(channel_handle, device_handle, value):
             return True
         else:
             return False
@@ -180,11 +179,12 @@ class YasdiMaster:
         else:
             return False
 
-    def GetChannelValRange(self,handle) -> (int, int):
+    def GetChannelValRange(self,channelHandle) -> (float, float):
         """Delivers the value range of a parameter channel (e.g. 0 - 240 for channel 'DA_Messintervall')
         """
-        result = self.yasdiMaster.GetChannelValRange(handle,self.prange_min,self.prange_max)
-        if YE_OK == result:
-            return (self.range_min.value,self.range_max.value)
+        range_min = c_double()
+        range_max = c_double()
+        if YE_OK == self.yasdiMaster.GetChannelValRange(channelHandle, byref(range_min), byref(range_max)):
+            return (range_min.value, range_max.value)
         else:
-            return (None,None)
+            return (None, None)
