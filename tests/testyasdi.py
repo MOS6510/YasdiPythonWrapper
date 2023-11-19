@@ -5,9 +5,9 @@
 """
 
 import unittest
-from yasdi import *
-from yasdimaster import *
-from sd1channels import *
+from yasdiwrapper.yasdi import *
+from yasdiwrapper.yasdimaster import *
+from yasdiwrapper.sd1channels import *
 
 class YasdiTests(unittest.TestCase):
 

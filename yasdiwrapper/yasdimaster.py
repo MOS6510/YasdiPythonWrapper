@@ -15,12 +15,9 @@ __maintainer__ = "Heiko Prüssing"
 from ctypes import *
 from ctypes.util import find_library
 import os
-import time
 import ctypes
 import math
-from yasdi import *
-from datetime import timezone
-from datetime import datetime
+from yasdiwrapper.yasdi import *
 
 
 # Constants
