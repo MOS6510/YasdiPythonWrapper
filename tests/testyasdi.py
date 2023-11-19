@@ -116,4 +116,9 @@ class YasdiTests(unittest.TestCase):
         self.assertGreater(channelValueTimeStamp, 0)
 
 if __name__ == '__main__':
+
+     # Search for YASDI libraries also in the current directory first
+    os.environ["DYLD_LIBRARY_PATH"] = os.getcwd() # for macOS
+    os.environ["LD_LIBRARY_PATH"] = os.getcwd() # for Linux/Unix
+    
     unittest.main()

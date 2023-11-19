@@ -22,24 +22,31 @@ from yasdiwrapper.sd1channels import *
 
 # Implementation
 
-def pollLiveData(deviceList: [c_int], channelList: [str]):
-    """Polls for live data on given devices and channel names"""
+def pollLiveData(deviceList: [c_int], channelList: [str], outputFile: str="./data.csv"):
+    """Polls for live data on given devices and channel names and put it into a csv file."""
 
     # The age of the channel value should not older than 1 second
     AGE_OF_VALUE_SECONDS = 1
-
+    
     while True:
-        for deviceHandle in devicesList:
-            for channelName in channelsToRequest:
-                channelListOfSpots = yasdiMasterLibrary.GetChannelHandlesEx(deviceHandle, SPOTCHANNELS) # obsolete? 
-                channelHandle = yasdiMasterLibrary.FindChannelName(deviceHandle, channelName)
-                if INVALID_HANDLE == channelHandle:
-                    print(f"Error: Channel {channelName} not found on device {yasdiMasterLibrary.GetDeviceName(deviceHandle)} ...")
-                else:
-                    channelValue = yasdiMasterLibrary.GetChannelValue(channelHandle, deviceHandle, AGE_OF_VALUE_SECONDS)
-                    timestamp = yasdiMasterLibrary.GetChannelValueTimeStamp(channelHandle, deviceHandle)
-                    channelUnit = yasdiMasterLibrary.GetChannelUnit(channelHandle)
-                    print(f"{channelName};{channelUnit};{timestamp};{channelValue}")
+            outputBuffer = "ChannelName;ChannelUnit;ValueTimestamp;ChannelValue\n"
+            for deviceHandle in devicesList:
+                for channelName in channelsToRequest:
+                    channelHandle = yasdiMasterLibrary.FindChannelName(deviceHandle, channelName)
+                    if INVALID_HANDLE == channelHandle:
+                        print(f"Error: Channel {channelName} is missing on device {yasdiMasterLibrary.GetDeviceName(deviceHandle)}. Check your device detection...")
+                    else:
+                        channelValue = yasdiMasterLibrary.GetChannelValue(channelHandle, deviceHandle, AGE_OF_VALUE_SECONDS)
+                        timestamp = yasdiMasterLibrary.GetChannelValueTimeStamp(channelHandle, deviceHandle)
+                        channelUnit = yasdiMasterLibrary.GetChannelUnit(channelHandle)
+                        # print(f"{channelName};{channelUnit};{timestamp};{channelValue}")
+                        outputBuffer = outputBuffer + f"{channelName};{channelUnit};{timestamp};{channelValue}\n"
+            
+            # Write data to a csv file
+            with open(outputFile, 'w') as f:
+                f.write(outputBuffer)
+                f.close()
+
             time.sleep(2)
 
 if __name__ == "__main__":
