@@ -82,7 +82,7 @@ if __name__ == "__main__":
             raise Exception("ERROR: No SMA inverters found! Check your hardware or yasdi configuration and try again...")
         
         # Endless poll for live data from devices:
-        channelsToRequest = [CHANNEl_NAME_PAC, CHANNEl_NAME_ETAG, CHANNEl_NAME_ETOTAL] 
+        channelsToRequest = [CHANNEl_NAME_PAC, CHANNEl_NAME_ETOTAL] 
         pollLiveData(devicesList, channelsToRequest)
 
     #except Exception as e:

@@ -14,6 +14,6 @@ __maintainer__ = "Heiko Prüssing"
 # Some channel names identifications. This list is incomplete.
 
 CHANNEl_NAME_PAC = "Pac" # Current AC Power
-CHANNEl_NAME_ETAG = "E-Tag" # Energy today produced
+CHANNEl_NAME_ETAG = "E-Tag" # Energy today produced (available only on a Sunny Boy Control but not on string inverter)
 CHANNEl_NAME_ETOTAL = "E-Total" # Energy total produced
-CHANNEL_NAME_STATUS = "Status" # The "status" of an inverter. On a sunny boy control the value can be one of:  0: Stop 1: Warten 2: Betrieb, 3: Stoerung, 4: Fehler, 5: Erfassung, 6: Transparent
+CHANNEL_NAME_STATUS = "Status" # The "status" of an inverter. On a Sunny Boy Control the value can be one of:  0: Stop 1: Warten 2: Betrieb, 3: Stoerung, 4: Fehler, 5: Erfassung, 6: Transparent
