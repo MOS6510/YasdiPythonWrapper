@@ -2,17 +2,17 @@
 
 This is a simple python 3.x wrapper for SMA's 'YASDI' (aka **Y**et **A**nother **S**MA **D**ata **I**mplementation).
 
-**SMAData1** (short **SD1**, "1" means "version") is the name of the protocol SMA used with (older) string inverters. It can still be used in modern inverters
-(in 2023) with a RS485 data module. 
+**SMAData1** (version **1**, short **SD1**) is the name of the protocol SMA used with (older) string inverters. It can still be used in modern inverters
+(in 2023) with a [RS485 data module](https://files.sma.de/downloads/485i-Module-IA-de-19W.pdf) if needed. 
 
-YASDI does not implement the modern communication protocol **SMAData2+** (short **SD2+**) wich is used in all modern SMA inverters and devices with ethernet (IP network).
+YASDI does not implement the modern communication protocol **SMAData2+** (version **2+**, short **SD2+**) which is used in all modern SMA inverters and devices with ethernet (IP network).
 
 
 
 ### Get latest YASDI source code, compile and install it
 
 Get the source directly from [SMA Solar Technology AG](https://www.sma.de/produkte/apps-software/yasdi) 
-or my Server [www.heiko-pruessing.de](https://www.heiko-pruessing.de/projects/yasdi/).
+or my server [www.heiko-pruessing.de](https://www.heiko-pruessing.de/projects/yasdi/).
 
 ```bash
 Bash> unzip yasdi-1.8.1build9-src.zip -d YASDI
