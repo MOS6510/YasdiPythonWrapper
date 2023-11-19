@@ -31,7 +31,7 @@ def pollLiveData(deviceList: [c_int], channelList: [str]):
     while True:
         for deviceHandle in devicesList:
             for channelName in channelsToRequest:
-                channelListOfSpots = yasdiMasterLibrary.GetChannelHandlesEx(deviceHandle, SPOTCHANNELS)
+                channelListOfSpots = yasdiMasterLibrary.GetChannelHandlesEx(deviceHandle, SPOTCHANNELS) # obsolete? 
                 channelHandle = yasdiMasterLibrary.FindChannelName(deviceHandle, channelName)
                 if INVALID_HANDLE == channelHandle:
                     print(f"Error: Channel {channelName} not found on device {yasdiMasterLibrary.GetDeviceName(deviceHandle)} ...")
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         # Search for SMA devices (inverters, etc...)
         print("Start searching SMA devices...")
         COUNT_OF_DEVICES_TO_BE_SEARCHED = 1
-        if YE_OK != yasdiMasterLibrary.DoMasterCmdEx(cmd=CMD_DEVICE_DETECTION, param1=COUNT_OF_DEVICES_TO_BE_SEARCHED):
+        if not yasdiMasterLibrary.DoMasterCmdEx(cmd=CMD_DEVICE_DETECTION, param1=COUNT_OF_DEVICES_TO_BE_SEARCHED):
             print(f"Device detection failed for some reason. Maybe not all devices are found as requested.")
 
         # Get the list of found SMA devices
